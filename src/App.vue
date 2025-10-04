@@ -29,7 +29,7 @@ const formStore = useFormStore();
 </script>
 
 <style>
-/* --- ESTILOS GLOBALES --- */
+/* Aquí va tu CSS global y de la barra de progreso (sin cambios) */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 :root {
   --verde-principal: #1E4620;
@@ -47,15 +47,12 @@ body {
   background-image: linear-gradient(135deg, #1e4620 0%, #2a6f2d 100%);
   color: #333;
 }
-
 #app-wrapper {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   gap: 2rem; 
 }
-
-/* --- ESTILOS DE LA BARRA DE PROGRESO --- */
 .progress-bar-wrapper {
   display: flex;
   justify-content: space-between;
@@ -126,17 +123,15 @@ body {
   color: var(--dorado-acento);
   font-weight: 700;
 }
-
-/* --- ESTILOS RESPONSIVOS --- */
 @media (max-width: 768px) {
   #app-wrapper {
-    gap: 1.5rem; /* Reducimos el espacio entre elementos */
+    gap: 1.5rem;
   }
   main {
-    padding: 0 0.5rem; /* Reducimos el padding lateral del main */
+    padding: 0 0.5rem;
   }
   .progress-bar-wrapper .step-label {
-    display: none; /* Ocultamos las etiquetas de texto, excelente idea */
+    display: none;
   }
   .progress-bar-wrapper .step-number {
       margin-bottom: 0;

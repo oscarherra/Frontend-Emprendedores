@@ -5,7 +5,7 @@
       <p>Completa la siguiente información para formar parte de nuestra comunidad.</p>
     </div>
 
-    <form @submit.prevent="formStore.submitForm" class="entrepreneur-form">
+    <form v-if="!formStore.isFormSubmitted" @submit.prevent="formStore.submitForm" class="entrepreneur-form">
 
       <div v-show="formStore.currentStep === 1">
         <fieldset>
@@ -151,7 +151,10 @@
              <label for="sector">Sector*</label>
              <div class="sector-selector-container">
                <button type="button" v-for="sector in sectorOptions" :key="sector.name" class="sector-button" :class="{ selected: formStore.formData.infoEmprendimiento.sector === sector.name }" @click="formStore.formData.infoEmprendimiento.sector = sector.name">
-                 <div class="icon-wrapper" v-html="sector.icon"></div>
+                 <div class="icon-wrapper">
+                   <img v-if="sector.image" :src="getSectorImageUrl(sector.image)" :alt="sector.name" class="sector-image">
+                   <div v-else v-html="sector.icon"></div>
+                 </div>
                  <span class="sector-label">{{ sector.name }}</span>
                </button>
              </div>
@@ -307,6 +310,19 @@
         <button type="submit" v-if="formStore.currentStep === 4" class="submit-btn">Enviar Registro</button>
       </div>
     </form>
+    
+    <div v-else class="thank-you-message">
+      <div class="icon-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      </div>
+      <h2>¡Registro Recibido con Éxito!</h2>
+      <p>Muchas gracias por completar el formulario. Tu información ha sido enviada.</p>
+      <button @click="formStore.resetForm()" class="btn-primary">Registrar otro emprendedor</button>
+    </div>
+
   </div>
 </template>
 
@@ -348,31 +364,20 @@ const distritosOptions = ref([
 ]);
 
 const sectorOptions = ref([
-  { 
-    name: 'Turismo', 
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>` 
-  },
-  { 
-    name: 'Alimentos', 
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 21h10"/><path d="M12 3v18"/><path d="M12 3H8a2.5 2.5 0 0 0 0 5h8a2.5 2.5 0 0 1 0 5H8"/></svg>`
-  },
-  { 
-    name: 'Belleza', 
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 9v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9"/><path d="M4 9h16v-2a2 2 0 0 0-2-2h-2.5a2 2 0 0 1-1.6-.8L12 2l-1.9 2.2a2 2 0 0 1-1.6.8H6a2 2 0 0 0-2 2v2Z"/></svg>`
-  },
-  { 
-    name: 'Servicios', 
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>`
-  },
-  { 
-    name: 'Cultural', 
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.5 0 10-4.5 10-10S17.5 2 12 2 2 6.5 2 12s4.5 10 10 10Z"/><path d="M8 14h0"/><path d="M16 14h0"/><path d="M9 9c-.5 2.5 2.5 4.5 4 5"/><path d="M15 9c.5 2.5-2.5 4.5-4 5"/></svg>`
-  },
+  { name: 'Turismo',   image: 'Turismo.png' },
+  { name: 'Alimentos', image: 'Alimentos.png' },
+  { name: 'Belleza',   image: 'Belleza.png' },
+  { name: 'Servicios', image: 'Servicios.png' },
+  { name: 'Cultural',  image: 'Cultural.png' },
   { 
     name: 'Otros', 
     icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>` 
   }
 ]);
+
+const getSectorImageUrl = (imageName) => {
+  return new URL(`../assets/${imageName}`, import.meta.url).href;
+};
 
 const sectoresCulturales = [
   'Música', 'Artes Visuales (Pintura, Escultura, Fotografía)', 'Danza', 'Teatro', 'Cine / Audiovisual',
@@ -555,6 +560,12 @@ const apoyoOptions = [
    align-items: center;
    background-color: #e9ecef;
    transition: all 0.2s ease-in-out;
+ }
+ 
+ .sector-image {
+   width: 32px;
+   height: 32px;
+   object-fit: contain;
  }
 
  .icon-wrapper :deep(svg) {
@@ -746,5 +757,31 @@ const apoyoOptions = [
      grid-template-columns: 1fr;
      gap: 1rem;
    }
+ }
+
+ .thank-you-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 3rem 1rem;
+ }
+
+ .thank-you-message .icon-wrapper {
+  color: var(--verde-principal);
+  margin-bottom: 1.5rem;
+ }
+
+ .thank-you-message h2 {
+  color: var(--verde-principal);
+  font-size: 1.8rem;
+  margin: 0 0 1rem 0;
+ }
+
+ .thank-you-message p {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 2rem;
+  max-width: 400px;
  }
 </style>

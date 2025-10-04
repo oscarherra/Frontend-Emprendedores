@@ -95,7 +95,6 @@ const getStepClass = (stepId) => {
 }
 
 .step.active .step-label {
-  /* CAMBIO: El texto activo ahora es blanco para máximo contraste */
   color: white;
   font-weight: 700;
 }
