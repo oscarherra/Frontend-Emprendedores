@@ -1,36 +1,25 @@
 <template>
-  <div id="app-wrapper">
-    <AppHeader />
-
-    <div class="progress-bar-wrapper">
-      <div 
-        v-for="(step, index) in formStore.steps" 
-        :key="index" 
-        class="step" 
-        :class="{ active: formStore.currentStep === index + 1, completed: formStore.currentStep > index + 1 }">
-        <div class="step-number">{{ index + 1 }}</div>
-        <div class="step-label">{{ step }}</div>
-      </div>
-    </div>
-    
-    <main>
-      <FormularioEmprendedor />
-    </main>
-
-  </div>
+  <!--  
+    Este es el único elemento necesario en el template de App.vue
+    cuando se usa vue-router. Actúa como un marcador de posición
+    donde el router inyectará el componente de la vista activa
+    (FormularioPublicoView, LoginView, AdminView, etc.).
+  -->
+  <router-view />
 </template>
 
-<script setup>
-import FormularioEmprendedor from './components/FormularioEmprendedor.vue';
-import AppHeader from './components/AppHeader.vue';
-import { useFormStore } from './stores/FormStore';
-
-const formStore = useFormStore();
-</script>
-
 <style>
-/* Aquí va tu CSS global y de la barra de progreso (sin cambios) */
+/* Aquí solo deben ir los estilos verdaderamente GLOBALES que quieres
+  que se apliquen a TODA tu aplicación (admin, login y formulario).
+  Los estilos específicos de cada vista deben ir en sus propios 
+  componentes con la etiqueta <style scoped>.
+*/
+
+/* 1. Importación de las fuentes que usarás en el proyecto */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+/* 2. Definición de variables de color globales (CSS Custom Properties) */
 :root {
   --verde-principal: #1E4620;
   --dorado-acento: #F7B538;
@@ -38,103 +27,27 @@ const formStore = useFormStore();
   --texto-claro: #FFFFFF;
   --gris-borde: #EAEAEA;
 }
+
+/* 3. Reseteo universal para un cálculo de tamaño de caja consistente */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* 4. Estilos base para el body */
+/* Nota: Se quitó el fondo verde de aquí porque no es global.
+   El fondo del formulario ahora vivirá en su propio componente.
+   Este fondo gris claro funcionará mejor para el login y el admin. */
 body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-  font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: var(--verde-principal);
-  background-image: linear-gradient(135deg, #1e4620 0%, #2a6f2d 100%);
+  font-family: 'Poppins', sans-serif; /* Fuente por defecto */
   color: #333;
+  background-color: #f8f9fa; 
 }
-#app-wrapper {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  gap: 2rem; 
-}
-.progress-bar-wrapper {
-  display: flex;
-  justify-content: space-between;
+
+/* 5. Asegura que el contenedor de la app ocupe toda la pantalla */
+#app {
+  height: 100vh;
   width: 100%;
-  max-width: 800px;
-  position: relative;
-  margin: 0 auto;
-  padding: 0 1rem;
-  box-sizing: border-box;
-}
-.progress-bar-wrapper .step {
-  text-align: center;
-  position: relative;
-  width: 100%;
-  color: #a0aec0;
-  transition: color 0.4s ease;
-}
-.progress-bar-wrapper .step-number {
-  height: 40px;
-  width: 40px;
-  background-color: #fff;
-  border: 2px solid #e2e8f0;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0 auto 10px;
-  font-weight: 600;
-  transition: all 0.4s ease;
-  z-index: 1;
-  position: relative;
-}
-.progress-bar-wrapper .step-label {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: white;
-  transition: opacity 0.3s ease;
-}
-.progress-bar-wrapper .step:not(:first-child):before {
-  content: '';
-  position: absolute;
-  top: 19px;
-  right: 50%;
-  height: 2px;
-  width: 100%;
-  background-color: rgba(255, 255, 255, 0.3);
-  z-index: 0;
-  transition: background-color 0.4s ease;
-}
-.progress-bar-wrapper .step.completed .step-number {
-  border-color: var(--dorado-acento);
-  color: var(--dorado-acento);
-  background-color: #fff;
-}
-.progress-bar-wrapper .step.completed .step-label {
-  color: var(--dorado-acento);
-}
-.progress-bar-wrapper .step.completed::before {
-  background-color: var(--dorado-acento);
-}
-.progress-bar-wrapper .step.active .step-number {
-  background-color: var(--dorado-acento);
-  border-color: var(--dorado-acento);
-  color: var(--verde-principal);
-  transform: scale(1.1);
-}
-.progress-bar-wrapper .step.active .step-label {
-  color: var(--dorado-acento);
-  font-weight: 700;
-}
-@media (max-width: 768px) {
-  #app-wrapper {
-    gap: 1.5rem;
-  }
-  main {
-    padding: 0 0.5rem;
-  }
-  .progress-bar-wrapper .step-label {
-    display: none;
-  }
-  .progress-bar-wrapper .step-number {
-      margin-bottom: 0;
-  }
 }
 </style>
