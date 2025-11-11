@@ -1,8 +1,8 @@
+// src/stores/FormStore.js
 import { defineStore } from 'pinia';
 
-export const useFormStore = defineStore('form', {
-  state: () => ({
-    // Tu estado no cambia, los campos del formulario siguen siendo los mismos.
+function initialState() {
+  return {
     currentStep: 1,
     steps: ['General', 'Emprendimiento', 'Formalización', 'Necesidades'],
     isFormSubmitted: false,
@@ -13,11 +13,11 @@ export const useFormStore = defineStore('form', {
         apellido1: '',
         apellido2: '',
         cedula: '',
-        fechaNacimiento: '', // Se mantiene camelCase aquí para el formulario
+        fechaNacimiento: '',
         edad: null,
         sexo: '',
         telefono: '',
-        correo_electronico: '', // Se mantiene snake_case aquí
+        correo_electronico: '',
         direccion: '',
         distrito: '',
         comunidad: ''
@@ -49,75 +49,124 @@ export const useFormStore = defineStore('form', {
         tipoApoyo: []
       }
     }
-  }),
+  };
+}
+
+export const useFormStore = defineStore('form', {
+  state: () => initialState(),
+
   actions: {
-    // Tus otras acciones (nextStep, prevStep, etc.) no cambian.
-    
+    nextStep() {
+      if (this.currentStep < this.steps.length) this.currentStep++;
+    },
+    prevStep() {
+      if (this.currentStep > 1) this.currentStep--;
+    },
+    resetForm() {
+      // reemplaza todo el state por un clon limpio
+      const fresh = initialState();
+      this.currentStep = fresh.currentStep;
+      this.steps = fresh.steps;
+      this.isFormSubmitted = fresh.isFormSubmitted;
+      this.imageFiles = fresh.imageFiles;
+      this.formData = fresh.formData;
+    },
+
     async submitForm() {
-      // --- TRANSFORMACIÓN DE DATOS PRECISA Y CORREGIDA ---
-      
-      const apiPayload = {
-        // ==========================================================
-        //  ¡LA CORRECCIÓN ESTÁ AQUÍ!
-        //  Los nombres de las claves ahora son snake_case para coincidir con Laravel.
-        // ==========================================================
-        nombre: this.formData.informacionGeneral.nombre,
-        apellido1: this.formData.informacionGeneral.apellido1,
-        apellido2: this.formData.informacionGeneral.apellido2,
-        cedula: this.formData.informacionGeneral.cedula,
-        fecha_nacimiento: this.formData.informacionGeneral.fechaNacimiento, // <--- CORREGIDO
-        telefono: this.formData.informacionGeneral.telefono,
-        correo_electronico: this.formData.informacionGeneral.correo_electronico,
-        direccion: this.formData.informacionGeneral.direccion,
-        distrito: this.formData.informacionGeneral.distrito,
-        comunidad: this.formData.informacionGeneral.comunidad,
-        escolaridad: [this.formData.infoEmprendimiento.nivelEducativo],
-        certificaciones: this.formData.infoEmprendimiento.certificaciones,
+      const fd = new FormData();
 
-        // Datos del Emprendimiento
-        nombre_emprendimiento: this.formData.infoEmprendimiento.nombreNegocio,
-        tipo_emprendimiento: this.formData.infoEmprendimiento.tipo,
-        descripcion_emprendimiento: this.formData.infoEmprendimiento.descripcion,
-        slogan: this.formData.infoEmprendimiento.slogan,
-        anio_inicio: this.formData.infoEmprendimiento.anoInicio,
-        numero_empleados: this.formData.infoEmprendimiento.numEmpleados,
-        mobiliario: `Sillas: ${this.formData.infoEmprendimiento.utileria.sillas}, Mesas: ${this.formData.infoEmprendimiento.utileria.mesas}, Toldo: ${this.formData.infoEmprendimiento.utileria.toldo}`,
-        signos_externos: this.formData.infoEmprendimiento.signosExternos,
-        sector: this.formData.infoEmprendimiento.sector,
+      // ===== Paso 1 – Emprendedor (requeridos) =====
+      const g = this.formData.informacionGeneral;
+      fd.append('nombre', g.nombre);
+      fd.append('apellido1', g.apellido1);
+      fd.append('apellido2', g.apellido2);
+      fd.append('cedula', g.cedula);
+      fd.append('fecha_nacimiento', g.fechaNacimiento);
+      fd.append('telefono', g.telefono);
+      fd.append('direccion', g.direccion);
+      fd.append('distrito', g.distrito);
+      fd.append('comunidad', g.comunidad);
 
-        // Relaciones
-        formalizaciones: this.formData.formalizacion,
-        apoyos: this.formData.necesidades.tipoApoyo,
-        necesidades: [this.formData.necesidades.necesidadActual].filter(n => n),
+      // opcionales si existen
+      if (g.correo_electronico) fd.append('correo_electronico', g.correo_electronico);
+      if (g.sexo) fd.append('sexo', g.sexo);
 
-        // Proyección
-        intereses: [this.formData.necesidades.interesTalleres],
-        ingreso_mensual: this.formData.necesidades.ingresoMensual,
-      };
+      // escolaridad como array (solo si hay nivel)
+      const nivel = this.formData.infoEmprendimiento.nivelEducativo;
+      if (nivel) fd.append('escolaridad[]', nivel);
 
-      // --- El resto de la lógica de envío no cambia ---
+      // ===== Paso 2 – Emprendimiento (solo si hay nombreNegocio) =====
+      const e = this.formData.infoEmprendimiento;
+      const hayEmprendimiento = !!e.nombreNegocio?.trim();
+
+      if (hayEmprendimiento) {
+        fd.append('nombre_emprendimiento', e.nombreNegocio);
+        // estos 2 son requeridos cuando existe nombre_emprendimiento
+        fd.append('tipo_emprendimiento', e.tipo || 'Individual');
+        fd.append('descripcion_emprendimiento', e.descripcion || '-');
+
+        if (e.slogan) fd.append('slogan', e.slogan);
+        if (e.anoInicio != null) fd.append('anio_inicio', String(e.anoInicio));
+        if (e.numEmpleados != null) fd.append('numero_empleados', String(e.numEmpleados));
+        fd.append(
+          'mobiliario',
+          `Sillas: ${e.utileria.sillas}, Mesas: ${e.utileria.mesas}, Toldo: ${e.utileria.toldo}`
+        );
+        if (e.signosExternos) fd.append('signos_externos', e.signosExternos);
+
+        // sector y feria
+        if (e.sector) fd.append('sector', e.sector);
+        if (e.participoFeria) fd.append('participo_feria', e.participoFeria);
+        if (e.cualesFerias) fd.append('cuales_ferias', e.cualesFerias);
+
+        // logo
+        fd.append('tiene_logo', e.logo === 'Si' ? '1' : '0');
+
+        // redes (solo las que tengan valor)
+        const r = e.redes || {};
+        if (r.facebook)  fd.append('redes[facebook]',  r.facebook);
+        if (r.instagram) fd.append('redes[instagram]', r.instagram);
+        if (r.tiktok)    fd.append('redes[tiktok]',    r.tiktok);
+        if (r.website)   fd.append('redes[website]',   r.website);
+        if (r.whatsapp)  fd.append('redes[whatsapp]',  r.whatsapp);
+      }
+
+      // ===== Paso 3 – Formalización =====
+      (this.formData.formalizacion || []).forEach(v => fd.append('formalizaciones[]', v));
+
+      // ===== Paso 4 – Necesidades / Proyección =====
+      const n = this.formData.necesidades;
+      if (n.necesidadActual) fd.append('necesidades[]', n.necesidadActual);
+      (n.tipoApoyo || []).forEach(v => fd.append('apoyos[]', v));
+      if (n.interesTalleres) fd.append('intereses[]', n.interesTalleres);
+      if (n.ingresoMensual) fd.append('ingreso_mensual', n.ingresoMensual);
+
+      // ===== Imágenes =====
+      (this.imageFiles || []).forEach(f => fd.append('imagenes[]', f));
+
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/emprendedores', {
+        const res = await fetch('http://127.0.0.1:8000/api/emprendedores', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify(apiPayload),
+          headers: { 'Accept': 'application/json' }, // NO pongas Content-Type, el navegador lo arma con boundary
+          body: fd
         });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          let errorMessage = 'Ocurrió un error inesperado en el servidor.';
-
-          if (response.status === 422 && errorData.errors) {
-            errorMessage = 'Por favor, corrige los siguientes errores:\n\n' + Object.values(errorData.errors).flat().join('\n');
-          } else if (errorData.message) {
-            errorMessage = errorData.message;
+        if (!res.ok) {
+          // el backend devuelve {errors: {...}} en 422
+          const err = await res.json().catch(() => ({}));
+          let msg = 'Error al enviar el formulario.';
+          if (res.status === 422 && err?.errors) {
+            msg = Object.values(err.errors).flat().join('\n');
+          } else if (err?.message) {
+            msg = err.message;
           }
-          throw new Error(errorMessage);
+          throw new Error(msg);
         }
+
         this.isFormSubmitted = true;
-      } catch (error) {
-        console.error('Error al enviar el formulario:', error);
-        alert('No se pudo enviar el formulario.\n\n' + error.message);
+      } catch (e) {
+        console.error('Error al enviar el formulario:', e);
+        alert('Error: ' + e.message);
       }
     }
   }
