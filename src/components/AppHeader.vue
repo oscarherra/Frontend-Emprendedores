@@ -10,7 +10,7 @@
 </template>
 
 <script setup>
-// No se necesita lógica de script para este componente.
+
 </script>
 
 <style scoped>
@@ -62,7 +62,6 @@
 /* --- ESTILOS RESPONSIVOS --- */
 @media (max-width: 768px) {
   .header-content {
-    /* Centramos el contenido en móvil */
     justify-content: center;
     padding: 0 1rem;
   }
@@ -72,12 +71,12 @@
   }
 
   .header-title {
-    font-size: 1.1rem; /* Reducimos un poco más el texto */
+    font-size: 1.1rem; 
     text-align: center;
   }
 
   .municipal-logo {
-    height: 45px; /* Hacemos el logo más pequeño */
+    height: 45px; 
   }
 }
 </style>

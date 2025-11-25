@@ -3,7 +3,6 @@
 /* 1. Importar la fuente desde Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-/* 2. Definir la paleta de colores y variables globales */
 :root {
   --verde-principal: #1E4620;
   --dorado-acento: #F7B538;
@@ -12,10 +11,10 @@
   --gris-borde: #EAEAEA; /* Un gris muy claro para bordes sutiles */
 }
 
-/* 3. Estilos base para el cuerpo de la página */
+
 body {
   margin: 0;
-  background-color: var(--verde-principal); /* Fondo oscuro para toda la página */
-  font-family: 'Poppins', sans-serif; /* Aplicar la nueva fuente globalmente */
-  color: #333; /* Color de texto por defecto */
+  background-color: var(--verde-principal); 
+  font-family: 'Poppins', sans-serif; 
+  color: #333; 
 }
